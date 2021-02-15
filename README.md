@@ -1,1 +1,1 @@
-# Project test_mode(API)  
+# Project test_mode(API)   [![Build status](https://ci.appveyor.com/api/projects/status/1g86t2flvh5egqq6/branch/master?svg=true)](https://ci.appveyor.com/project/OlgaLetkova/test-mode/branch/master)
