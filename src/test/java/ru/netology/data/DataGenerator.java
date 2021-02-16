@@ -6,7 +6,6 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-
 import static io.restassured.RestAssured.given;
 
 @Data
@@ -22,11 +21,11 @@ public class DataGenerator {
             .build();
 
 
-   public static void setUpAll() {
+   public static void generateUser(String login, String password, String status) {
 
         given()
                 .spec(requestSpec)
-                .body(new RegistrationDto("vasya", "password", "active"))
+                .body(new RegistrationDto(login,password,status))
                 .when()
                 .post("/api/system/users")
                 .then()

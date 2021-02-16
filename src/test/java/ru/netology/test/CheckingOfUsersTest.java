@@ -1,50 +1,45 @@
 package ru.netology.test;
 
-import org.junit.jupiter.api.BeforeEach;
+import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import ru.netology.data.DataGenerator;
-import ru.netology.data.InvalidRegistration;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.open;
 
 public class CheckingOfUsersTest {
 
-    @BeforeEach
-    public void setUp() {
-        DataGenerator.setUpAll();
+    @Test
+    void shouldCheckOfUserAuthorization() {
+        DataGenerator.generateUser("IvanMarkov", "leto38.15", "active");
+        open("http://localhost:9999");
+        SelenideElement form = $("form");
+        form.$("[name='login']").setValue("IvanMarkov");
+        form.$("[name='password']").setValue("leto38.15");
+        form.$(".button, [data-test-id='action-login']").click();
     }
 
     @Test
-    void shouldCheckOfExistingUser() {
-        given()
-                .baseUri("http://localhost:9999/api/system/users")
-                .when()
-                .get("/login")
-                .then()
-                .body("login", equalTo("vasya"));
+    void shouldCheckStatusOfUser() {
+        DataGenerator.generateUser("AlexPetrov", "agent07", "blocked");
+        open("http://localhost:9999");
+        SelenideElement form = $("form");
+        form.$("[name='login']").setValue("AlexPetrov");
+        form.$("[name='password']").setValue("agent07");
+        form.$(".button, [data-test-id='action-login']").click();
+        $("[data-test-id='error-notification']").shouldHave(text("Ошибка! " + "Пользователь заблокирован"));
     }
 
     @Test
-    void shouldGetStatusOfUser() {
-        given()
-                .baseUri("http://localhost:9999/api/system/users")
-                .when()
-                .get("/status")
-                .then()
-                .body("status", equalTo("active"));
-    }
-
-    @Test
-    void shouldCheckOfSendingInvalidLogin() {
-       InvalidRegistration rewrite = new InvalidRegistration(123, "password", "blocked");
-        given()
-                .baseUri("http://localhost:9999/api/system/users")
-                .body(rewrite)
-                .when()
-                .post("/post")
-                .then()
-                .statusCode(400)
-                .body("login", equalTo(123));
+    void shouldCheckInvalidLogin() {
+        DataGenerator.generateUser("YuriiCet", "west", "active");
+        open("http://localhost:9999");
+        SelenideElement form = $("form");
+        form.$("[name='login']").setValue("ValeraPushkin");
+        form.$("[name='password']").setValue("west");
+        form.$(".button, [data-test-id='action-login']").click();
+        $("[data-test-id='error-notification']")
+                .shouldHave(text("Ошибка! " + "Неверно указан логин или пароль"));
     }
 }
